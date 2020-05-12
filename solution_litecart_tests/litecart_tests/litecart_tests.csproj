@@ -60,7 +60,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WorkingWithBrowser.cs" />
+    <Compile Include="AuthorizationTests.cs" />
+    <Compile Include="ChromeBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

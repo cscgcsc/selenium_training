@@ -5,7 +5,7 @@ using OpenQA.Selenium.Chrome;
 namespace litecart_tests
 {
     [TestFixture]
-    public class WorkingWithBrowser
+    public class ChromeBrowser
     {
         private IWebDriver driver;
 
