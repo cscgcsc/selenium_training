@@ -47,11 +47,12 @@ namespace litecart_tests
 
             for (int i = 0; i < driver.FindElements(By.XPath(xPathToFind)).Count(); i++)
             {
-                List<IWebElement> menuItems = driver.FindElements(By.XPath(xPathToFind)).ToList();               
+                List<IWebElement> menuItems = driver.FindElements(By.XPath(xPathToFind)).ToList();
+                object[] args = { menuItems[i].Text };
                 menuItems[i].Click();
-                Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")));
+                Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")), "Page '{0}' doesn't contain h1 header", args);
                 //Assert.IsTrue(IsElementPresent(By.XPath(xPathToFind + "[" + (i + 1) + "][contains(@class, 'selected')]")));
-                Assert.AreEqual("selected", driver.FindElements(By.XPath(xPathToFind)).ToList()[i].GetAttribute("class"));
+                Assert.AreEqual("selected", driver.FindElements(By.XPath(xPathToFind)).ToList()[i].GetAttribute("class"), "Page '{0}' is not selected", args);
                 ClickAllLeftMenuItems(xPathToFind + "[" + (i + 1) + "]/ul/li");
             }
         }

@@ -1,10 +1,8 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace litecart_tests
@@ -27,7 +25,13 @@ namespace litecart_tests
         {
             driver.Url = "http://localhost/litecart/";
 
-            
+            ICollection<IWebElement> productsList = driver.FindElements(By.XPath("//ul[contains(@class, 'products')]/li"));
+
+            foreach(IWebElement product in productsList)
+            {
+                object[] args = { product.FindElement(By.XPath(".//div[contains(@class, 'name')]")).Text };
+                Assert.AreEqual(1, product.FindElements(By.XPath(".//div[contains(@class, 'sticker')]")).Count, "The number of stickers for '{0}' is not equal 1.", args);
+            }
         }
 
         private bool IsElementPresent(By element)

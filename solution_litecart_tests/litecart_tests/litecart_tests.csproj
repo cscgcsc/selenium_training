@@ -65,6 +65,7 @@
     <Compile Include="IEBrowser.cs" />
     <Compile Include="FirefoxBrowser.cs" />
     <Compile Include="ChromeBrowser.cs" />
+    <Compile Include="MainShopPageTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
