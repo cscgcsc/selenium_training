@@ -28,15 +28,13 @@ namespace litecart_tests
         {
             driver.Url = "http://localhost/litecart/admin/";
 
-            if (IsLoggedIn())
+            if (!IsLoggedIn())
             {
-                driver.FindElement(By.XPath("//a[contains(@href ,'logout.php')]")).Click();
-            }
-
-            driver.FindElement(By.XPath("//input[@name='username']")).SendKeys("admin");
-            driver.FindElement(By.XPath("//input[@name='password']")).SendKeys("secret");
-            driver.FindElement(By.XPath("//button[@name='login']")).Click();
-            WaitForElementPresent(By.XPath("//a[contains(@href ,'logout.php')]"));
+                driver.FindElement(By.XPath("//input[@name='username']")).SendKeys("admin");
+                driver.FindElement(By.XPath("//input[@name='password']")).SendKeys("secret");
+                driver.FindElement(By.XPath("//button[@name='login']")).Click();
+                WaitForElementPresent(By.XPath("//a[contains(@href ,'logout.php')]"));
+            }          
 
             ClickAllLeftMenuItems("//ul[@id='box-apps-menu']/li");
         }
@@ -51,7 +49,6 @@ namespace litecart_tests
                 object[] args = { menuItems[i].Text };
                 menuItems[i].Click();
                 Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")), "Page '{0}' doesn't contain h1 header", args);
-                //Assert.IsTrue(IsElementPresent(By.XPath(xPathToFind + "[" + (i + 1) + "][contains(@class, 'selected')]")));
                 Assert.AreEqual("selected", driver.FindElements(By.XPath(xPathToFind)).ToList()[i].GetAttribute("class"), "Page '{0}' is not selected", args);
                 ClickAllLeftMenuItems(xPathToFind + "[" + (i + 1) + "]/ul/li");
             }
