@@ -1,23 +1,25 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
 
 namespace litecart_tests
 {
     [TestFixture]
-    public class ChromeBrowser
+    public class FirefoxBrowser
     {
         private IWebDriver driver;
 
         [SetUp]
         public void Start()
         {
-            //ChromeOptions options = new ChromeOptions();
-            //options.BinaryLocation = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
-            //options.AddArgument("start-maximized");
-            //driver = new ChromeDriver(options);
+            FirefoxOptions options = new FirefoxOptions();         
+            options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
+            //options.LogLevel = FirefoxDriverLogLevel.Trace;
+            //options.BrowserExecutableLocation = @"C:\Program Files\Firefox Nightly\firefox.exe";       
+            //options.BrowserExecutableLocation = @"C:\Program Files (x86)\Mozilla Firefox\firefox.exe";
+            //options.UseLegacyImplementation = true;
 
-            driver = new ChromeDriver();
+            driver = new FirefoxDriver(options);
         }
 
         [Test]

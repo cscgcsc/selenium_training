@@ -1,23 +1,24 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.IE;
+using System;
 
 namespace litecart_tests
 {
     [TestFixture]
-    public class ChromeBrowser
+    public class IEBrowser
     {
         private IWebDriver driver;
 
         [SetUp]
         public void Start()
-        {
-            //ChromeOptions options = new ChromeOptions();
-            //options.BinaryLocation = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
-            //options.AddArgument("start-maximized");
-            //driver = new ChromeDriver(options);
-
-            driver = new ChromeDriver();
+        {        
+            //InternetExplorerDriverService IEDriverService = InternetExplorerDriverService.CreateDefaultService();
+            //IEDriverService.LoggingLevel = InternetExplorerDriverLogLevel.Trace;
+            //IEDriverService.LogFile = @"D:\q\1.log"; 
+            //driver = new InternetExplorerDriver(IEDriverService);
+            
+            driver = new InternetExplorerDriver();
         }
 
         [Test]
@@ -32,6 +33,7 @@ namespace litecart_tests
         public void Stop()
         {
             driver.Quit();
+            Console.Out.WriteLine("типа закрыл");
             driver = null;
         }
     }

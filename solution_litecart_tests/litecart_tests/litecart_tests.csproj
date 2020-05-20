@@ -60,7 +60,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdminPageTests.cs" />
     <Compile Include="AuthorizationTests.cs" />
+    <Compile Include="IEBrowser.cs" />
+    <Compile Include="FirefoxBrowser.cs" />
     <Compile Include="ChromeBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
