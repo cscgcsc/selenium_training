@@ -26,8 +26,33 @@ namespace litecart_tests
         [Test]
         public void LeftMenuVerificationTest()
         {
-            Login();
-            ClickAllLeftMenuItems("//ul[@id='box-apps-menu']/li");
+            Login();  
+            string[] args = new string[1];
+            List<IWebElement> menuItems = driver.FindElements(By.XPath("//ul[@id='box-apps-menu']/li")).ToList();
+
+            for (int i = 0; i < menuItems.Count(); i++)
+            {
+                args[0] = menuItems[i].Text;
+                menuItems[i].FindElement(By.XPath("./a")).Click();
+                menuItems = driver.FindElements(By.XPath("//ul[@id='box-apps-menu']/li")).ToList();
+
+                Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")), "Page '{0}' doesn't contain h1 header", args);
+                Assert.IsTrue(menuItems[i].GetAttribute("class").Contains("selected"), "Page '{0}' is not selected", args);
+
+                WaitLeftMenuSubitems(menuItems[i]);
+                List<IWebElement> submenuItems = menuItems[i].FindElements(By.XPath("./ul/li")).ToList();
+                
+                for (int n = 0; n < submenuItems.Count(); n++)
+                {
+                    args[0] = submenuItems[n].Text;
+                    submenuItems[n].FindElement(By.XPath("./a")).Click();
+                    menuItems = driver.FindElements(By.XPath("//ul[@id='box-apps-menu']/li")).ToList();
+                    submenuItems = menuItems[i].FindElements(By.XPath("./ul/li")).ToList();
+
+                    Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")), "Page '{0}' doesn't contain h1 header", args);
+                    Assert.IsTrue(submenuItems[n].GetAttribute("class").Contains("selected"), "Page '{0}' is not selected", args);
+                }               
+            }
         }
 
         [Test]
@@ -120,40 +145,7 @@ namespace litecart_tests
                 rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]")).ToList();
             }
         }
-
-        private void ClickMenuItem(string menuName)
-        {
-            IWebElement menuItem = driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//span[text()='" + menuName + "']"));
-
-            for (int attempt = 0; ; attempt++)
-            {
-                if (attempt >= 10) break;
-                try
-                {
-                    if (IsElementPresent(By.XPath("//td[@id='content']//h1"))) break;
-                    menuItem.Click();
-                }
-                catch (Exception)
-                { }
-                Thread.Sleep(100);
-            }
-        }
-
-        private void ClickAllLeftMenuItems(string xPathToFind)
-        {
-            WaitLeftMenuSubitems(By.XPath(xPathToFind));
-
-            for (int i = 0; i < driver.FindElements(By.XPath(xPathToFind)).Count(); i++)
-            {
-                List<IWebElement> menuItems = driver.FindElements(By.XPath(xPathToFind)).ToList();
-                object[] args = { menuItems[i].Text };
-                menuItems[i].Click();
-                Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")), "Page '{0}' doesn't contain h1 header", args);
-                Assert.AreEqual("selected", driver.FindElements(By.XPath(xPathToFind)).ToList()[i].GetAttribute("class"), "Page '{0}' is not selected", args);
-                ClickAllLeftMenuItems(xPathToFind + "[" + (i + 1) + "]/ul/li");
-            }
-        }
-
+       
         private void Login()
         {
             driver.Url = "http://localhost/litecart/admin/";
@@ -166,20 +158,21 @@ namespace litecart_tests
             }
         }
 
-        private void WaitLeftMenuSubitems(By element)
+        private void WaitLeftMenuSubitems(IWebElement element)
         {
             for (int attempt = 0; ; attempt++)
             {
-                if (attempt >= 3) break;
+                if (attempt >= 5) break;
                 try
                 {
-                    if (IsElementPresent(element)) break;
+                    element.FindElement(By.XPath("./ul/li"));
+                    break;
                 }
                 catch (Exception)
                 { }
                 Thread.Sleep(100);
             }
-        }
+        }     
 
         private bool IsLoggedIn()
         {
@@ -220,5 +213,35 @@ namespace litecart_tests
             driver.Quit();
             driver = null;
         }
+
+        //private void ClickAllLeftMenuItems(string xPathToFind)
+        //{
+        //    OldWaitLeftMenuSubitems(By.XPath(xPathToFind));
+
+        //    for (int i = 0; i < driver.FindElements(By.XPath(xPathToFind)).Count(); i++)
+        //    {
+        //        List<IWebElement> menuItems = driver.FindElements(By.XPath(xPathToFind)).ToList();
+        //        object[] args = { menuItems[i].Text };
+        //        menuItems[i].Click();
+        //        Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")), "Page '{0}' doesn't contain h1 header", args);
+        //        Assert.AreEqual("selected", driver.FindElements(By.XPath(xPathToFind)).ToList()[i].GetAttribute("class"), "Page '{0}' is not selected", args);
+        //        ClickAllLeftMenuItems(xPathToFind + "[" + (i + 1) + "]/ul/li");
+        //    }
+        //}
+
+        //private void OldWaitLeftMenuSubitems(By element)
+        //{
+        //    for (int attempt = 0; ; attempt++)
+        //    {
+        //        if (attempt >= 3) break;
+        //        try
+        //        {
+        //            if (IsElementPresent(element)) break;
+        //        }
+        //        catch (Exception)
+        //        { }
+        //        Thread.Sleep(100);
+        //    }
+        //}
     }
 }
