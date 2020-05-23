@@ -26,17 +26,82 @@ namespace litecart_tests
         [Test]
         public void LeftMenuVerificationTest()
         {
-            driver.Url = "http://localhost/litecart/admin/";
-
-            if (!IsLoggedIn())
-            {
-                driver.FindElement(By.XPath("//input[@name='username']")).SendKeys("admin");
-                driver.FindElement(By.XPath("//input[@name='password']")).SendKeys("secret");
-                driver.FindElement(By.XPath("//button[@name='login']")).Click();
-                WaitForElementPresent(By.XPath("//a[contains(@href ,'logout.php')]"));
-            }          
-
+            Login();
             ClickAllLeftMenuItems("//ul[@id='box-apps-menu']/li");
+        }
+
+        [Test]
+        public void CountriesOrderingTest()
+        {
+            Login();           
+            driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//span[text()='Countries']//parent::a")).Click();
+
+            List<string> countriesList = new List<string>();
+
+            ICollection<IWebElement> rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]"));
+            foreach (IWebElement row in rows)
+            {
+                List<IWebElement> cells = row.FindElements(By.XPath("./td")).ToList();
+                countriesList.Add(cells[4].Text);
+            }
+
+            List<string> sortedCountriesList = new List<string>(countriesList);
+            sortedCountriesList.Sort();
+            Assert.AreEqual(countriesList, sortedCountriesList, "List of countries is not sorted");
+        }
+
+        [Test]
+        public void GeozonesOrderingFromCountryPageTest()
+        {
+            Login();
+            driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//span[text()='Countries']/parent::a")).Click();
+
+            List<IWebElement> rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]")).ToList();
+            for (int i = 0; i < rows.Count(); i++)
+            {
+                List<IWebElement> cells = rows[i].FindElements(By.XPath("./td")).ToList();
+                if (cells[5].Text == "0") continue;
+                string[] args = {cells[4].Text};
+                //перейдем по ссылке на страницу геозон
+                cells[4].FindElement(By.XPath("./a")).Click();
+                
+                //получим список геозон
+                List<string> geozonesList = new List<string>();
+                ICollection<IWebElement> rowsZones = driver.FindElements(By.XPath("//table[@id='table-zones']//tr[not(contains(@class, 'header'))]"));
+                foreach (IWebElement rowZones in rowsZones)
+                {
+                    List<IWebElement> cellsZones = rowZones.FindElements(By.XPath("./td")).ToList();
+                    //если это строка добавления новой геозоны, то пропустим
+                    if (cellsZones[3].FindElements(By.XPath(".//button[@name='add_zone']")).Count() != 0) continue;
+                    geozonesList.Add(cellsZones[2].Text);
+                }
+
+                List<string> sortedGeozonesList = new List<string>(geozonesList);
+                sortedGeozonesList.Sort();
+                Assert.AreEqual(geozonesList, sortedGeozonesList, "List of {0} geozones is not sorted", args);
+                
+                //вернемся назад
+                driver.Navigate().Back();
+                rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]")).ToList();
+            }
+        }
+
+        private void ClickMenuItem(string menuName)
+        {
+            IWebElement menuItem = driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//span[text()='" + menuName + "']"));
+
+            for (int attempt = 0; ; attempt++)
+            {
+                if (attempt >= 10) break;
+                try
+                {
+                    if (IsElementPresent(By.XPath("//td[@id='content']//h1"))) break;
+                    menuItem.Click();
+                }
+                catch (Exception)
+                { }
+                Thread.Sleep(100);
+            }
         }
 
         private void ClickAllLeftMenuItems(string xPathToFind)
@@ -51,6 +116,18 @@ namespace litecart_tests
                 Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")), "Page '{0}' doesn't contain h1 header", args);
                 Assert.AreEqual("selected", driver.FindElements(By.XPath(xPathToFind)).ToList()[i].GetAttribute("class"), "Page '{0}' is not selected", args);
                 ClickAllLeftMenuItems(xPathToFind + "[" + (i + 1) + "]/ul/li");
+            }
+        }
+
+        private void Login()
+        {
+            driver.Url = "http://localhost/litecart/admin/";
+            if (!IsLoggedIn())
+            {
+                driver.FindElement(By.XPath("//input[@name='username']")).SendKeys("admin");
+                driver.FindElement(By.XPath("//input[@name='password']")).SendKeys("secret");
+                driver.FindElement(By.XPath("//button[@name='login']")).Click();
+                WaitForElementPresent(By.XPath("//a[contains(@href ,'logout.php')]"));
             }
         }
 

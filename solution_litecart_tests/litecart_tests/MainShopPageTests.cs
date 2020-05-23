@@ -29,7 +29,7 @@ namespace litecart_tests
 
             foreach(IWebElement product in productsList)
             {
-                object[] args = { product.FindElement(By.XPath(".//div[contains(@class, 'name')]")).Text };
+                object[] args = {product.FindElement(By.XPath(".//div[contains(@class, 'name')]")).Text};
                 Assert.AreEqual(1, product.FindElements(By.XPath(".//div[contains(@class, 'sticker')]")).Count, "The number of stickers for '{0}' is not equal 1.", args);
             }
         }
