@@ -86,6 +86,41 @@ namespace litecart_tests
             }
         }
 
+        [Test]
+        public void GeozonesOrderingTest()
+        {
+            Login();
+            driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//span[text()='Geo Zones']/parent::a")).Click();
+
+            List<IWebElement> rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]")).ToList();
+            for (int i = 0; i < rows.Count(); i++)
+            {
+                List<IWebElement> cells = rows[i].FindElements(By.XPath("./td")).ToList();               
+                string[] args = {cells[2].Text};
+                //перейдем по ссылке на страницу геозон
+                cells[2].FindElement(By.XPath("./a")).Click();
+
+                //получим список геозон
+                List<string> geozonesList = new List<string>();
+                ICollection<IWebElement> rowsZones = driver.FindElements(By.XPath("//table[@id='table-zones']//tr[not(contains(@class, 'header'))]"));
+                foreach (IWebElement rowZones in rowsZones)
+                {
+                    List<IWebElement> cellsZones = rowZones.FindElements(By.XPath("./td")).ToList();
+                    //если это строка добавления новой геозоны, то пропустим
+                    if (cellsZones.Count() == 1) continue;
+                    geozonesList.Add(cellsZones[2].FindElement(By.XPath(".//option[@selected]")).Text);
+                }
+
+                List<string> sortedGeozonesList = new List<string>(geozonesList);
+                sortedGeozonesList.Sort();
+                Assert.AreEqual(geozonesList, sortedGeozonesList, "List of {0} geozones is not sorted", args);
+
+                //вернемся назад
+                driver.Navigate().Back();
+                rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]")).ToList();
+            }
+        }
+
         private void ClickMenuItem(string menuName)
         {
             IWebElement menuItem = driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//span[text()='" + menuName + "']"));
