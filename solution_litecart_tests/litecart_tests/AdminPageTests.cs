@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
@@ -17,10 +18,13 @@ namespace litecart_tests
         [SetUp]
         public void Start()
         {
-            ChromeOptions options = new ChromeOptions();         
+            ChromeOptions options = new ChromeOptions();
             options.AddArgument("start-maximized");
 
             driver = new ChromeDriver(options);
+            //FirefoxOptions options = new FirefoxOptions();
+            //options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
+            //driver = new FirefoxDriver(options);
         }
 
         [Test]
