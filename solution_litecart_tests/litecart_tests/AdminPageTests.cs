@@ -2,10 +2,14 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Support.Extensions;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace litecart_tests
@@ -14,17 +18,19 @@ namespace litecart_tests
     public class AdminPageTests
     {
         private IWebDriver driver;
+        public static Random rnd = new Random();
 
         [SetUp]
         public void Start()
         {
             ChromeOptions options = new ChromeOptions();
             options.AddArgument("start-maximized");
-
             driver = new ChromeDriver(options);
+
             //FirefoxOptions options = new FirefoxOptions();
-            //options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
             //driver = new FirefoxDriver(options);
+
+            //driver = new InternetExplorerDriver();
         }
 
         [Test]
@@ -149,7 +155,104 @@ namespace litecart_tests
                 rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]")).ToList();
             }
         }
-       
+
+        [Test]
+        public void AddingNewProduct()
+        {
+            Login();
+            driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//a[contains(@href, 'doc=catalog')]")).Click();
+            
+            List<String> oldProductsList = new List<String>();
+            ICollection<IWebElement> rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]"));
+            foreach (IWebElement row in rows)
+            {
+                List<IWebElement> cells = row.FindElements(By.XPath("./td")).ToList();
+                oldProductsList.Add(cells[2].Text);
+            }
+
+            driver.FindElement(By.XPath("//td[@id='content']//a[contains(@href, 'doc=edit_product')]")).Click();                   
+            
+            //tab General
+            driver.FindElement(By.XPath("//div[contains(@class, 'tab')]//a[@href='#tab-general']")).Click();
+            Thread.Sleep(1000);
+            driver.FindElement(By.XPath("//input[@name='status' and @value='1']")).Click();
+            string name = GenerateRandomString(10);
+            driver.FindElement(By.XPath("//input[@name='name[en]']")).SendKeys(name);
+            driver.FindElement(By.XPath("//input[@name='code']")).SendKeys(GenerateRandomString(10));
+            ToggleOnRandomCheckbox(By.XPath("//input[@name='categories[]']"));
+            SelectRandomValue(By.XPath("//select[@name='default_category_id']"));
+            ToggleOnRandomCheckbox(By.XPath("//input[@name='product_groups[]']"));
+            driver.FindElement(By.XPath("//input[@name='quantity']")).Clear();
+            driver.FindElement(By.XPath("//input[@name='quantity']")).SendKeys(GenerateRandomNumber(5).ToString());
+            SelectRandomValue(By.XPath("//select[@name='quantity_unit_id']"));
+            SelectRandomValue(By.XPath("//select[@name='delivery_status_id']"));
+            SelectRandomValue(By.XPath("//select[@name='sold_out_status_id']"));
+            driver.FindElement(By.XPath("//input[@name='new_images[]']")).SendKeys(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"duck.jpg"));
+            driver.ExecuteJavaScript("arguments[0].setAttribute('value', arguments[1]);", driver.FindElement(By.XPath("//input[@name='date_valid_from']")), GenerateRandomDate().ToString("yyyy-MM-dd"));
+
+            //tab Information
+            driver.FindElement(By.XPath("//div[contains(@class, 'tab')]//a[@href='#tab-information']")).Click();
+            SelectRandomValue(By.XPath("//select[@name='manufacturer_id']"));
+            SelectRandomValue(By.XPath("//select[@name='supplier_id']"));
+            driver.FindElement(By.XPath("//input[@name='keywords']")).SendKeys(GenerateRandomString(10));
+            driver.FindElement(By.XPath("//input[@name='short_description[en]']")).SendKeys(GenerateRandomString(10));
+            driver.FindElement(By.XPath("//div[@class='trumbowyg-editor']")).SendKeys(GenerateRandomString(100));
+            driver.FindElement(By.XPath("//input[@name='head_title[en]']")).SendKeys(GenerateRandomString(10));
+            driver.FindElement(By.XPath("//input[@name='meta_description[en]']")).SendKeys(GenerateRandomString(10));
+
+            //tab Prices
+            driver.FindElement(By.XPath("//div[contains(@class, 'tab')]//a[@href='#tab-prices']")).Click();
+            driver.FindElement(By.XPath("//input[@name='purchase_price']")).Clear();
+            driver.FindElement(By.XPath("//input[@name='purchase_price']")).SendKeys(GenerateRandomNumber(50).ToString());
+            SelectRandomValue(By.XPath("//select[@name='purchase_price_currency_code']"));
+            SelectRandomValue(By.XPath("//select[@name='tax_class_id']"));
+            driver.FindElement(By.XPath("//input[@name='prices[USD]']")).SendKeys(GenerateRandomNumber(50).ToString());
+            driver.FindElement(By.XPath("//input[@name='prices[EUR]']")).SendKeys(GenerateRandomNumber(50).ToString());
+            
+            driver.FindElement(By.XPath("//a[@id='add-campaign']")).Click();
+            //driver.ExecuteJavaScript("arguments[0].setAttribute('value', arguments[1]);", driver.FindElement(By.XPath("//input[@name='campaigns[new_1][start_date]']")), GenerateRandomDate().ToString("yyyy-MM-ddThh:mm:ss"));
+            //driver.ExecuteJavaScript("arguments[0].setAttribute('value', arguments[1]);", driver.FindElement(By.XPath("//input[@name='campaigns[new_1][end_date]']")), GenerateRandomDate().ToString("yyyy-MM-ddThh:mm:ss"));
+            driver.FindElement(By.XPath("//input[@name='campaigns[new_1][percentage]']")).Clear();
+            driver.FindElement(By.XPath("//input[@name='campaigns[new_1][percentage]']")).SendKeys(GenerateRandomNumber(50).ToString());
+            driver.FindElement(By.XPath("//button[@name='save']")).Click();
+
+            WaitForElementPresent(By.XPath("//div[@id='notices']//div[contains(text(),'Changes saved')]"));
+            
+            List<String> newProductsList = new List<String>();
+            rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]"));
+            foreach (IWebElement row in rows)
+            {
+                List<IWebElement> cells = row.FindElements(By.XPath("./td")).ToList();
+                newProductsList.Add(cells[2].Text);
+            }
+
+            oldProductsList.Add(name);
+            oldProductsList.Sort();
+            newProductsList.Sort();
+            Assert.AreEqual(oldProductsList, newProductsList);
+        }
+
+        private void SelectRandomValue(By by)
+        {
+            IWebElement element = driver.FindElement(by);
+            List<String> valueList = new List<String>();
+            foreach(IWebElement option in element.FindElements(By.XPath("./option")))
+            {
+                string value = option.GetAttribute("value");
+                if (String.IsNullOrEmpty(value)) continue;
+                valueList.Add(value);
+            }
+            if (valueList.Count() == 0) return;
+            SelectByValue(by, valueList[GenerateRandomNumber(valueList.Count() - 1)]);
+        }
+
+        private void ClickRandomRadiobutton(By by)
+        {
+            List<IWebElement> radiobuttonList = driver.FindElements(by).ToList();
+            if (radiobuttonList.Count() == 0) return;
+            radiobuttonList[GenerateRandomNumber(radiobuttonList.Count() - 1)].Click();
+        }
+
         private void Login()
         {
             driver.Url = "http://localhost/litecart/admin/";
@@ -176,34 +279,43 @@ namespace litecart_tests
                 { }
                 Thread.Sleep(100);
             }
-        }     
+        }
+
+
+        //public static IJavaScriptExecutor Scripts(this IWebDriver driver)
+        //{
+        //    return (IJavaScriptExecutor)driver;
+        //}
+
+        private void ToggleOnRandomCheckbox(By by)
+        {
+            List<IWebElement> checkboxList = driver.FindElements(by).ToList();
+            if (checkboxList.Count() == 0) return;
+            IWebElement checkbox = checkboxList[GenerateRandomNumber(checkboxList.Count() - 1)];
+            if (!checkbox.Selected) checkbox.Click();
+        }
+
+        private void FillPatternField(By by, string text)
+        {
+            IWebElement element = driver.FindElement(by);
+            element.Click();
+            element.SendKeys(Keys.Home);          
+            element.SendKeys(text);
+        }
 
         private bool IsLoggedIn()
         {
             return IsElementPresent(By.XPath("//a[contains(@href ,'logout.php')]"));
         }
 
-        private bool IsElementPresent(By element)
-        {
-            try
-            {
-                driver.FindElement(element);
-                return true;
-            }
-            catch (NoSuchElementException)
-            {
-                return false;
-            }
-        }
-
-        private void WaitForElementPresent(By element)
+        private void WaitForElementPresent(By by)
         {
             for (int second = 0; ; second++)
             {
                 if (second >= 10) Assert.Fail("timeout");
                 try
                 {
-                    if (IsElementPresent(element)) break;
+                    if (IsElementPresent(by)) break;
                 }
                 catch (Exception)
                 { }
@@ -211,6 +323,69 @@ namespace litecart_tests
             }
         }
 
+        private bool IsElementPresent(By by)
+        {
+            try
+            {
+                driver.FindElement(by);
+                return true;
+            }
+            catch (NoSuchElementException)
+            {
+                return false;
+            }
+        }
+        
+        //служебные
+        public static int GenerateRandomNumber(int maxNumber)
+        {
+            return rnd.Next(0, maxNumber);
+        }
+
+        public static string GenerateRandomString(int maxLength)
+        {
+            int rndLengh = rnd.Next(1, maxLength);
+            StringBuilder text = new StringBuilder();
+
+            for (int i = 0; i < rndLengh; i++)
+            {
+                text.Append(Convert.ToChar(rnd.Next(97, 122)));
+            }
+
+            return text.ToString();
+        }
+
+        public static DateTime GenerateRandomDate()
+        {
+            DateTime start = new DateTime(2020, 1, 1);
+            int range = (DateTime.Today - start).Days;
+
+            return start.AddDays(rnd.Next(range));
+        }
+
+        public static DateTime GenerateRandomDate(DateTime start)
+        {
+            int range = (DateTime.Today - start).Days;
+
+            return start.AddDays(rnd.Next(range));
+        }
+
+        protected void Select(By element, string value)
+        {
+            if (value != null)
+            {
+                new SelectElement(driver.FindElement(element)).SelectByText(value);
+            }
+        }
+
+        protected void SelectByValue(By element, string value)
+        {
+            if (value != null)
+            {
+                new SelectElement(driver.FindElement(element)).SelectByValue(value);
+            }
+        }    
+       
         [TearDown]
         public void Stop()
         {
