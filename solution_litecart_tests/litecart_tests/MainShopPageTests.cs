@@ -152,6 +152,7 @@ namespace litecart_tests
                 Assert.AreEqual(i - 1, driver.FindElements(By.XPath("//table[contains(@class,'dataTable')]//td[contains(@class,'item')]")).Count, "Row is not deleted");
             }
             //driver.ExecuteJavaScript("arguments[0].classList.remove('items');", driver.FindElement(By.XPath("//ul[contains(@class,'items')]")));
+            //wait.Until(d=>{ return driver.ExecuteJavaScript<String>("return document.readyState;").Equals("complete");});    
         }
     }
 }

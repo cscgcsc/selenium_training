@@ -138,8 +138,7 @@ namespace litecart_tests
 
         [Test]
         public void AddingNewProductTest()
-        {
-            //wait.Until(d=>{ return driver.ExecuteJavaScript<String>("return document.readyState;").Equals("complete");});
+        {                
             driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//a[contains(@href, 'doc=catalog')]")).Click();
 
             List<String> oldProductsList = new List<String>();
@@ -165,7 +164,8 @@ namespace litecart_tests
             SelectRandomValue(By.XPath("//select[@name='quantity_unit_id']"));
             SelectRandomValue(By.XPath("//select[@name='delivery_status_id']"));
             SelectRandomValue(By.XPath("//select[@name='sold_out_status_id']"));
-            driver.FindElement(By.XPath("//input[@name='new_images[]']")).SendKeys(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"duck.jpg"));
+            string projectFolder = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\.."));
+            driver.FindElement(By.XPath("//input[@name='new_images[]']")).SendKeys(Path.Combine(projectFolder, @"duck.jpg"));
             driver.ExecuteJavaScript("arguments[0].setAttribute('value', arguments[1]);", driver.FindElement(By.XPath("//input[@name='date_valid_from']")), GenerateRandomDate().ToString("yyyy-MM-dd"));
 
             //Вкладка Information
