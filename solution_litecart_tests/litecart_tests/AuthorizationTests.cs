@@ -4,22 +4,14 @@ using OpenQA.Selenium.Chrome;
 
 namespace litecart_tests
 {
-    class AuthorizationTests
+    class AuthorizationTests : TestBase
     {
-        private IWebDriver driver;
-
-        [SetUp]
-        public void Start()
-        {
-            driver = new ChromeDriver();
-        }
-
         [Test]
         public void AuthWithValidCredentials()
         {
-            driver.Url = "http://localhost/litecart/admin/";
-            
-            if(IsLoggedIn())
+            driver.Url = applicationManager.baseURL + "/litecart/admin/";
+
+            if (IsLoggedInAdminPage())
             {
                 driver.FindElement(By.XPath("//a[contains(@href ,'logout.php')]")).Click();
             }
@@ -27,31 +19,6 @@ namespace litecart_tests
             driver.FindElement(By.XPath("//input[@name='username']")).SendKeys("admin");
             driver.FindElement(By.XPath("//input[@name='password']")).SendKeys("secret");
             driver.FindElement(By.XPath("//button[@name='login']")).Click();
-        }
-
-        private bool IsLoggedIn()
-        {
-            return IsElementPresent(By.XPath("//a[contains(@href ,'logout.php')]"));
-        }
-
-        private bool IsElementPresent(By element)
-        {
-            try
-            {
-                driver.FindElement(element);
-                return true;
-            }
-            catch (NoSuchElementException)
-            {
-                return false;
-            }
-        }
-
-        [TearDown]
-        public void Stop()
-        {
-            driver.Quit();
-            driver = null;
-        }
+        }   
     }
 }

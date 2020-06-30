@@ -1,41 +1,19 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace litecart_tests
 {
-    class MainShopPageTests
+    class MainShopPageTests : MainTestBase
     {
-        private IWebDriver driver;
-
-        [SetUp]
-        public void Start()
-        {
-            ChromeOptions options = new ChromeOptions();
-            options.AddArgument("start-maximized");
-
-            driver = new ChromeDriver(options);
-
-            //FirefoxOptions options = new FirefoxOptions();
-            //options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
-            //driver = new FirefoxDriver(options);
-
-            //driver = new InternetExplorerDriver();
-        }
-
         [Test]
         public void ProductsStickerTest()
         {
-            driver.Url = "http://localhost/litecart/";
-
             ICollection<IWebElement> productsList = driver.FindElements(By.XPath("//ul[contains(@class, 'products')]/li"));
 
             foreach(IWebElement product in productsList)
@@ -48,8 +26,6 @@ namespace litecart_tests
         [Test]
         public void ComparisonProductsInformationTest()
         {
-            driver.Url = "http://localhost/litecart/";
-
             //Список товаров
             List<IWebElement> productsList = driver.FindElements(By.XPath("//div[@id='box-campaigns']//li")).ToList();
 
@@ -84,79 +60,98 @@ namespace litecart_tests
             Assert.AreEqual(productInfo.FindElement(By.XPath(".//h1")).Text, oldArgs[0], "Product name for '{0}' on main page and product's page do not coincide.", oldArgs);
         }
 
-        private double GetNumber(string cssSize)
+        [Test]
+        public void CreationUserTest()
         {
-            cssSize = Regex.Replace(cssSize, @"[^\d\.,]", "").Replace(".", ",");           
-            return double.Parse(cssSize);
-        }
-
-        private string[] GetColor(string cssColor)
-        {       
-            return Regex.Replace(cssColor, @"[^\d,]", "").Split(new char[] {','});
-        }
-
-        private bool IsGreyColor(string cssColor)
-        {
-            string[] rgb = GetColor(cssColor);
-
-            return rgb[0] == rgb[1] 
-                && rgb[0] == rgb[2];
-        }
-
-        private bool IsRedColor(string cssColor)
-        {
-            string[] rgb = GetColor(cssColor);
-
-            return rgb[1] == "0" 
-                && rgb[2] == "0";
-        }
-
-        private bool IsElementPresent(By element)
-        {
-            try
+            if (IsLoggedInMainPage())
             {
-                driver.FindElement(element);
-                return true;
+                driver.FindElement(By.XPath("//div[@id='box-account']//a[contains(@href,'logout')]")).Click();
+                wait.Until(d => !IsLoggedInMainPage());
             }
-            catch (NoSuchElementException)
-            {
-                return false;
-            }
+
+            //Создание пользователя
+            driver.FindElement(By.XPath("//form[@name='login_form']//a[contains(@href,'create_account')]")).Click();
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//button[@name='create_account']")));
+            TrySendKeys(driver.FindElement(By.XPath("//input[@name='tax_id']")), GenerateRandomString(10));
+            driver.FindElement(By.XPath("//input[@name='company']")).SendKeys(GenerateRandomString(10));
+            string firstname = GenerateRandomString(10);
+            string lastname = GenerateRandomString(10);
+            driver.FindElement(By.XPath("//input[@name='firstname']")).SendKeys(firstname);
+            driver.FindElement(By.XPath("//input[@name='lastname']")).SendKeys(lastname);
+            driver.FindElement(By.XPath("//input[@name='address1']")).SendKeys(GenerateRandomString(10));
+            driver.FindElement(By.XPath("//input[@name='address2']")).SendKeys(GenerateRandomString(10));
+            driver.FindElement(By.XPath("//input[@name='postcode']")).SendKeys(GeneratePostcode());
+            driver.FindElement(By.XPath("//input[@name='city']")).SendKeys(GenerateRandomString(10));
+            SelectByValue(By.XPath("//select[@name='country_code']"), "RU");   
+            string email = String.Format("{0}@{1}.{2}", GenerateRandomString(10), GenerateRandomString(10), GenerateRandomString(3));
+            driver.FindElement(By.XPath("//input[@name='email']")).SendKeys(email);
+            driver.FindElement(By.XPath("//input[@name='phone']")).SendKeys(GeneratePostcode());
+            ToggleOnCheckbox(By.XPath("//input[@name='newsletter']"));
+            string password = GenerateRandomString(20);
+            driver.FindElement(By.XPath("//input[@name='password']")).SendKeys(password);
+            driver.FindElement(By.XPath("//input[@name='confirmed_password']")).SendKeys(password);
+            driver.FindElement(By.XPath("//button[@name='create_account']")).Click();
+            wait.Until(d => IsLoggedInMainPage());
+
+            //Logout 
+            TryClick(By.XPath("//div[@id='box-account']//a[contains(@href,'logout')]"));
+            //driver.FindElement(By.XPath("//div[@id='box-account']//a[contains(@href,'logout')]")).Click();
+            wait.Until(d => !IsLoggedInMainPage());
+
+            //Login
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//input[@name='email']"))).SendKeys(email);
+            driver.FindElement(By.XPath("//input[@name='password']")).SendKeys(password);
+            driver.FindElement(By.XPath("//button[@name='login']")).Click();
+            Assert.IsTrue(IsElementPresent(By.XPath("//div[@id='notices']//div[contains(text()," + 
+                String.Format("'You are now logged in as {0} {1}'", firstname, lastname) + ")]")), 
+                "You are not logged in as {0} {1}", firstname, lastname);
         }
 
-        private bool IsElementPresent(By element, IWebElement webElement)
+        [Test]
+        public void AddingProductToCartTest()
         {
-            try
+            ICollection<IWebElement> productsList = driver.FindElements(By.XPath("//ul[contains(@class, 'products')]/li"));           
+            if (productsList.Count == 0) return;
+            
+            //Добавим 3 товара 
+            for (int i = 0; i < 3; i++)
             {
-                webElement.FindElement(element);
-                return true;
-            }
-            catch (NoSuchElementException)
-            {
-                return false;
-            }
-        }
+                productsList = driver.FindElements(By.XPath("//ul[contains(@class, 'products')]/li"));               
+                productsList.First().Click();               
+                if (IsElementPresent(By.XPath("//select[@name='options[Size]']"))) SelectRandomValue(By.XPath("//select[@name='options[Size]']"));
+                IWebElement cartQuantity = driver.FindElement(By.XPath("//div[@id='cart']//span[contains(@class, 'quantity')]"));
+                driver.FindElement(By.XPath("//button[@name='add_cart_product']")).Click();
+                
+                string quantity = driver.FindElement(By.XPath("//input[@name='quantity']")).GetAttribute("value");
+                string newQuantity = (int.Parse(cartQuantity.Text) + int.Parse(quantity)).ToString();
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.TextToBePresentInElement(cartQuantity, newQuantity));
 
-        private void WaitForElementPresent(By element)
-        {
-            for (int second = 0; ; second++)
+                driver.Navigate().Back();
+            }
+
+            //Удалим из корзины все товары
+            driver.FindElement(By.XPath("//div[@id='cart']//a[contains(text(),'Checkout')]")).Click();
+            ICollection<IWebElement> buttonsList = driver.FindElements(By.XPath("//button[@name='remove_cart_item']"));
+
+            Thread.Sleep(1000);
+            for (int i = buttonsList.Count; i > 0; i--)
             {
-                if (second >= 10) Assert.Fail("timeout");
-                try
+                IWebElement removeButton = buttonsList.First();              
+                removeButton.Click();  
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(removeButton));
+                //Удалена последняя строка
+                if (i == 1)
                 {
-                    if (IsElementPresent(element)) break;
+                    Assert.IsTrue(driver.FindElement(By.XPath("//div[@id='checkout-cart-wrapper']")).Text.Contains("There are no items in your cart"), "Cart is not empty");
+                    break;
                 }
-                catch (Exception)
-                { }
-                Thread.Sleep(1000);
+                //Проверка иконок, если товаров больше 2
+                if (i > 2) Assert.AreEqual(i - 1, driver.FindElements(By.XPath("//ul[contains(@class,'shortcuts')]/li")).Count, "Shortcuts is not deleted");
+                //Проверка таблицы с товарами
+                buttonsList = driver.FindElements(By.XPath("//button[@name='remove_cart_item']"));            
+                Assert.AreEqual(i - 1, driver.FindElements(By.XPath("//table[contains(@class,'dataTable')]//td[contains(@class,'item')]")).Count, "Row is not deleted");
             }
-        }
-
-        [TearDown]
-        public void Stop()
-        {
-            driver.Quit();
-            driver = null;
+            //driver.ExecuteJavaScript("arguments[0].classList.remove('items');", driver.FindElement(By.XPath("//ul[contains(@class,'items')]")));
         }
     }
 }
