@@ -194,8 +194,8 @@ namespace litecart_tests
             driver.FindElement(By.XPath("//input[@name='campaigns[new_1][percentage]']")).SendKeys(GenerateRandomNumber(50).ToString());
             driver.FindElement(By.XPath("//button[@name='save']")).Click();
 
-            WaitForElementPresent(By.XPath("//div[@id='notices']//div[contains(text(),'Changes saved')]"));
-            
+            wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//div[@id='notices']//div[contains(@class,'success')]")));
+                    
             List<String> newProductsList = new List<String>();
             rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]"));
             foreach (IWebElement row in rows)
