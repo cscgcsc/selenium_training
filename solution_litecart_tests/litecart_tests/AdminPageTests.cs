@@ -1,12 +1,10 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.Extensions;
-using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace litecart_tests
@@ -19,30 +17,29 @@ namespace litecart_tests
         {
             string[] args = new string[1];
             List<IWebElement> menuItems = driver.FindElements(By.XPath("//ul[@id='box-apps-menu']/li")).ToList();
+            IWebElement previousHeader = driver.FindElement(By.XPath("//td[@id='content']"));
 
             for (int i = 0; i < menuItems.Count(); i++)
-            {
+            {             
                 args[0] = menuItems[i].Text;
                 menuItems[i].FindElement(By.XPath("./a")).Click();
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(previousHeader));
                 menuItems = driver.FindElements(By.XPath("//ul[@id='box-apps-menu']/li")).ToList();
 
-                Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")), "Page '{0}' doesn't contain h1 header", args);
+                Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1"), out previousHeader), "Page '{0}' doesn't contain h1 header", args);
                 Assert.IsTrue(menuItems[i].GetAttribute("class").Contains("selected"), "Page '{0}' is not selected", args);
 
                 WaitLeftMenuSubitems(menuItems[i]);
-                List<IWebElement> submenuItems = menuItems[i].FindElements(By.XPath("./ul/li")).ToList();
-                
+                List<IWebElement> submenuItems = menuItems[i].FindElements(By.XPath("./ul/li")).ToList();              
                 for (int n = 0; n < submenuItems.Count(); n++)
-                {
-                    IWebElement previousHeader = driver.FindElement(By.XPath("//td[@id='content']/h1"));
-                    args[0] = submenuItems[n].Text;
-
+                {                    
+                    args[0] = submenuItems[n].Text;                   
                     submenuItems[n].FindElement(By.XPath("./a")).Click();
-                    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(previousHeader));                 
+                    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(previousHeader));                    
                     menuItems = driver.FindElements(By.XPath("//ul[@id='box-apps-menu']/li")).ToList();
-                    submenuItems = menuItems[i].FindElements(By.XPath("./ul/li")).ToList(); 
-                    
-                    Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1")), "Page '{0}' doesn't contain h1 header", args);
+                    submenuItems = menuItems[i].FindElements(By.XPath("./ul/li")).ToList();
+        
+                    Assert.IsTrue(IsElementPresent(By.XPath("//td[@id='content']/h1"), out previousHeader), "Page '{0}' doesn't contain h1 header", args);
                     Assert.IsTrue(submenuItems[n].GetAttribute("class").Contains("selected"), "Page '{0}' is not selected", args);
                 }               
             }
@@ -188,7 +185,7 @@ namespace litecart_tests
             driver.FindElement(By.XPath("//input[@name='prices[EUR]']")).SendKeys(GenerateRandomNumber(50).ToString());
             
             driver.FindElement(By.XPath("//a[@id='add-campaign']")).Click();
-            //driver.ExecuteJavaScript("arguments[0].setAttribute('value', arguments[1]);", driver.FindElement(By.XPath("//input[@name='campaigns[new_1][start_date]']")), GenerateRandomDate().ToString("yyyy-MM-ddThh:mm:ss"));
+            //driver.ExecuteJavaScript("arguments[0].setAttribute('value', arguments[1]);", driver.FindElement(By.XPath("//input[@name='campaigns[new_1][start_date]']")), GenerateRandomDate().ToString("yyyy-MM-ddThh:mm:ss"));           
             //driver.ExecuteJavaScript("arguments[0].setAttribute('value', arguments[1]);", driver.FindElement(By.XPath("//input[@name='campaigns[new_1][end_date]']")), GenerateRandomDate().ToString("yyyy-MM-ddThh:mm:ss"));
             driver.FindElement(By.XPath("//input[@name='campaigns[new_1][percentage]']")).Clear();
             driver.FindElement(By.XPath("//input[@name='campaigns[new_1][percentage]']")).SendKeys(GenerateRandomNumber(50).ToString());
@@ -208,6 +205,31 @@ namespace litecart_tests
             oldProductsList.Sort();
             newProductsList.Sort();
             Assert.AreEqual(oldProductsList, newProductsList);
-        }   
+        }
+
+        [Test]
+        public void OpeningCountryLinksTest()
+        {
+            driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//a[contains(@href, 'doc=countries')]")).Click();
+            driver.FindElement(By.XPath("//td[@id='content']//a[contains(@href, 'doc=edit_country')]")).Click();
+
+            List<IWebElement> links = driver.FindElements(By.XPath("//td[@id='content']//form//a[@target='_blank']")).ToList();
+
+            for (int i = 0; i < links.Count(); i++)
+            {
+                string currentWindow = driver.CurrentWindowHandle;
+                ICollection<String> oldWindows = driver.WindowHandles;
+                links[i].Click();
+                IEnumerable<String> openedWindow = wait.Until(d =>
+                {
+                    IEnumerable<String> list = driver.WindowHandles.Except(oldWindows);
+                    return list.Count() > 0 ? list : null;
+                });
+                driver.SwitchTo().Window(openedWindow.First());
+                driver.Close();
+                driver.SwitchTo().Window(currentWindow);
+                links = driver.FindElements(By.XPath("//td[@id='content']//form//a[@target='_blank']")).ToList();
+            }         
+        }
     }
 }

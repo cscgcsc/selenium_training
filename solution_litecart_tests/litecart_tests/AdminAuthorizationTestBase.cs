@@ -14,7 +14,7 @@ namespace litecart_tests
                 driver.FindElement(By.XPath("//input[@name='username']")).SendKeys("admin");
                 driver.FindElement(By.XPath("//input[@name='password']")).SendKeys("secret");
                 driver.FindElement(By.XPath("//button[@name='login']")).Click();
-                WaitForElementPresent(By.XPath("//a[contains(@href ,'logout.php')]"));
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(By.XPath("//a[contains(@href ,'logout.php')]")));
             }
         }
     }

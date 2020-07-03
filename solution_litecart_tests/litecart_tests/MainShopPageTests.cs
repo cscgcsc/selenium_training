@@ -1,7 +1,5 @@
 ﻿using NUnit.Framework;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
-using OpenQA.Selenium.Support.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,8 +28,8 @@ namespace litecart_tests
             List<IWebElement> productsList = driver.FindElements(By.XPath("//div[@id='box-campaigns']//li")).ToList();
 
             string[] oldArgs = {productsList[0].FindElement(By.XPath(".//div[contains(@class, 'name')]")).Text};
-            Assert.IsTrue(IsElementPresent(By.XPath(".//s[contains(@class, 'regular-price')]"), productsList[0]), "Regular price for '{0}' is not strikethrough.", oldArgs);
-            Assert.IsTrue(IsElementPresent(By.XPath(".//strong[contains(@class, 'campaign-price')]"), productsList[0]), "Sale price for '{0}' is not bold.", oldArgs);
+            Assert.IsTrue(IsElementPresentContext(By.XPath(".//s[contains(@class, 'regular-price')]"), productsList[0]), "Regular price for '{0}' is not strikethrough.", oldArgs);
+            Assert.IsTrue(IsElementPresentContext(By.XPath(".//strong[contains(@class, 'campaign-price')]"), productsList[0]), "Sale price for '{0}' is not bold.", oldArgs);
             
             IWebElement oldRegularPrice = productsList[0].FindElement(By.XPath(".//s[contains(@class, 'regular-price')]"));
             IWebElement oldSalePrice = productsList[0].FindElement(By.XPath(".//strong[contains(@class, 'campaign-price')]"));
@@ -45,8 +43,8 @@ namespace litecart_tests
             productsList[0].FindElement(By.XPath("./a")).Click();            
             IWebElement productInfo = driver.FindElement(By.XPath("//div[@id='box-product']"));
 
-            Assert.IsTrue(IsElementPresent(By.XPath(".//s[contains(@class, 'regular-price')]"), productInfo), "Regular price for '{0}' is not strikethrough.", oldArgs);
-            Assert.IsTrue(IsElementPresent(By.XPath(".//strong[contains(@class, 'campaign-price')]"), productInfo), "Sale price for '{0}' is not bold.", oldArgs);
+            Assert.IsTrue(IsElementPresentContext(By.XPath(".//s[contains(@class, 'regular-price')]"), productInfo), "Regular price for '{0}' is not strikethrough.", oldArgs);
+            Assert.IsTrue(IsElementPresentContext(By.XPath(".//strong[contains(@class, 'campaign-price')]"), productInfo), "Sale price for '{0}' is not bold.", oldArgs);
 
             IWebElement newRegularPrice = productInfo.FindElement(By.XPath(".//s[contains(@class, 'regular-price')]"));
             IWebElement newSalePrice = productInfo.FindElement(By.XPath(".//strong[contains(@class, 'campaign-price')]"));
@@ -94,8 +92,8 @@ namespace litecart_tests
             wait.Until(d => IsLoggedInMainPage());
 
             //Logout 
+            Thread.Sleep(1000);
             TryClick(By.XPath("//div[@id='box-account']//a[contains(@href,'logout')]"));
-            //driver.FindElement(By.XPath("//div[@id='box-account']//a[contains(@href,'logout')]")).Click();
             wait.Until(d => !IsLoggedInMainPage());
 
             //Login
@@ -103,7 +101,7 @@ namespace litecart_tests
             driver.FindElement(By.XPath("//input[@name='password']")).SendKeys(password);
             driver.FindElement(By.XPath("//button[@name='login']")).Click();
             Assert.IsTrue(IsElementPresent(By.XPath("//div[@id='notices']//div[contains(text()," + 
-                String.Format("'You are now logged in as {0} {1}'", firstname, lastname) + ")]")), 
+                String.Format("'You are now logged in as {0} {1}'", firstname, lastname) + ")]"), out IWebElement element), 
                 "You are not logged in as {0} {1}", firstname, lastname);
         }
 
@@ -118,9 +116,9 @@ namespace litecart_tests
             {
                 productsList = driver.FindElements(By.XPath("//ul[contains(@class, 'products')]/li"));               
                 productsList.First().Click();               
-                if (IsElementPresent(By.XPath("//select[@name='options[Size]']"))) SelectRandomValue(By.XPath("//select[@name='options[Size]']"));
+                if (IsElementPresent(By.XPath("//select[@name='options[Size]']"), out IWebElement element)) SelectRandomValue(element);
                 IWebElement cartQuantity = driver.FindElement(By.XPath("//div[@id='cart']//span[contains(@class, 'quantity')]"));
-                driver.FindElement(By.XPath("//button[@name='add_cart_product']")).Click();
+                TryClick(By.XPath("//button[@name='add_cart_product']"));
                 
                 string quantity = driver.FindElement(By.XPath("//input[@name='quantity']")).GetAttribute("value");
                 string newQuantity = (int.Parse(cartQuantity.Text) + int.Parse(quantity)).ToString();
@@ -132,12 +130,11 @@ namespace litecart_tests
             //Удалим из корзины все товары
             driver.FindElement(By.XPath("//div[@id='cart']//a[contains(text(),'Checkout')]")).Click();
             ICollection<IWebElement> buttonsList = driver.FindElements(By.XPath("//button[@name='remove_cart_item']"));
-
             Thread.Sleep(1000);
             for (int i = buttonsList.Count; i > 0; i--)
             {
-                IWebElement removeButton = buttonsList.First();              
-                removeButton.Click();  
+                IWebElement removeButton = buttonsList.First();       
+                removeButton.Click();
                 wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(removeButton));
                 //Удалена последняя строка
                 if (i == 1)
@@ -151,8 +148,6 @@ namespace litecart_tests
                 buttonsList = driver.FindElements(By.XPath("//button[@name='remove_cart_item']"));            
                 Assert.AreEqual(i - 1, driver.FindElements(By.XPath("//table[contains(@class,'dataTable')]//td[contains(@class,'item')]")).Count, "Row is not deleted");
             }
-            //driver.ExecuteJavaScript("arguments[0].classList.remove('items');", driver.FindElement(By.XPath("//ul[contains(@class,'items')]")));
-            //wait.Until(d=>{ return driver.ExecuteJavaScript<String>("return document.readyState;").Equals("complete");});    
         }
     }
 }

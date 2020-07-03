@@ -78,6 +78,14 @@ namespace litecart_tests
             }
         }
 
+        protected void SelectByValue(IWebElement element, string value)
+        {
+            if (value != null)
+            {
+                new SelectElement(element).SelectByValue(value);
+            }
+        }
+
         protected void SelectRandomValue(By by)
         {
             IWebElement element = driver.FindElement(by);
@@ -90,6 +98,19 @@ namespace litecart_tests
             }
             if (valueList.Count() == 0) return;
             SelectByValue(by, valueList[GenerateRandomNumber(valueList.Count() - 1)]);
+        }
+
+        protected void SelectRandomValue(IWebElement element)
+        {
+            List<String> valueList = new List<String>();
+            foreach (IWebElement option in element.FindElements(By.XPath("./option")))
+            {
+                string value = option.GetAttribute("value");
+                if (String.IsNullOrEmpty(value)) continue;
+                valueList.Add(value);
+            }
+            if (valueList.Count() == 0) return;
+            SelectByValue(element, valueList[GenerateRandomNumber(valueList.Count() - 1)]);
         }
 
         protected void ClickRandomRadiobutton(By by)
@@ -146,56 +167,42 @@ namespace litecart_tests
 
             return rgb[1] == "0"
                 && rgb[2] == "0";
-        }
+        }       
 
-        protected void WaitForElementPresent(By by)
-        {
-            for (int second = 0; ; second++)
-            {
-                if (second >= 10) Assert.Fail("timeout");
-                try
-                {
-                    if (IsElementPresent(by)) break;
-                }
-                catch (Exception)
-                { }
-                Thread.Sleep(1000);
-            }
-        }
-
-        protected void TrySendKeys(IWebElement webElement, string text)
+        protected void TrySendKeys(IWebElement element, string text)
         {          
-            wait.Until(d => { 
-                webElement.SendKeys(text); 
-                return webElement.GetAttribute("value") == text;
+            wait.Until(d => {
+                element.SendKeys(text); 
+                return element.GetAttribute("value") == text;
             }) ;
         }
 
         protected void TryClick(By by)
         {
             IWebElement element = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementIsVisible(by));
-            wait.Until(d=>element.Enabled);
+            wait.Until(d => element.Enabled);
             element.Click();
         }
 
-        protected bool IsElementPresent(By by)
+        protected bool IsElementPresent(By by, out IWebElement element)
         {
             try
             {
-                driver.FindElement(by);
+                element = driver.FindElement(by);
                 return true;
             }
             catch (NoSuchElementException)
             {
+                element = null;
                 return false;
             }
         }
 
-        protected bool IsElementPresent(By by, IWebElement webElement)
+        protected bool IsElementPresentContext(By by, IWebElement context)
         {
             try
             {
-                webElement.FindElement(by);
+                context.FindElement(by);
                 return true;
             }
             catch (NoSuchElementException)
@@ -206,12 +213,12 @@ namespace litecart_tests
 
         protected bool IsLoggedInAdminPage()
         {
-            return IsElementPresent(By.XPath("//a[contains(@href ,'logout.php')]"));
+            return IsElementPresent(By.XPath("//a[contains(@href ,'logout.php')]"), out IWebElement element);
         }
 
         protected bool IsLoggedInMainPage()
         {
-            return IsElementPresent(By.XPath("//div[@id='box-account']//a[contains(@href,'logout')]"));
+            return IsElementPresent(By.XPath("//div[@id='box-account']//a[contains(@href,'logout')]"), out IWebElement element);
         }
 
         protected void WaitLeftMenuSubitems(IWebElement element)
@@ -229,6 +236,9 @@ namespace litecart_tests
                 Thread.Sleep(100);
             }
         }
+
+        //driver.ExecuteJavaScript("arguments[0].classList.remove('items');", driver.FindElement(By.XPath("//ul[contains(@class,'items')]")));
+        //wait.Until(d=>{ return driver.ExecuteJavaScript<String>("return document.readyState;").Equals("complete");});    
 
         [SetUp]
         protected void SetupTest()
