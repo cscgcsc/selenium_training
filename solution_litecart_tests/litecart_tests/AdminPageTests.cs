@@ -33,7 +33,8 @@ namespace litecart_tests
                 List<IWebElement> submenuItems = menuItems[i].FindElements(By.XPath("./ul/li")).ToList();              
                 for (int n = 0; n < submenuItems.Count(); n++)
                 {                    
-                    args[0] = submenuItems[n].Text;                   
+                    args[0] = submenuItems[n].Text;
+                    Thread.Sleep(1000);
                     submenuItems[n].FindElement(By.XPath("./a")).Click();
                     wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(previousHeader));                    
                     menuItems = driver.FindElements(By.XPath("//ul[@id='box-apps-menu']/li")).ToList();
