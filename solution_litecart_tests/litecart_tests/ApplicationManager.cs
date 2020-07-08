@@ -20,7 +20,7 @@ namespace litecart_tests
             baseURL = "http://localhost";
             seleniumHubURL = "http://10.22.9.86:4444/wd/hub";
 
-            StartRemoteBrowser(GetChromeOptions());
+            StartChromeBrowser();
             Wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
             //Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
         }
@@ -55,7 +55,6 @@ namespace litecart_tests
         {
             ChromeOptions options = new ChromeOptions();
             options.AddArgument("start-maximized");
-            options.PlatformName = "WINDOWS";
             //options.AddArgument("--window-size=500,500");
             //options.PageLoadStrategy = PageLoadStrategy.Normal;
             return options;

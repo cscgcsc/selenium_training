@@ -130,12 +130,16 @@ namespace litecart_tests
             //Удалим из корзины все товары
             driver.FindElement(By.XPath("//div[@id='cart']//a[contains(text(),'Checkout')]")).Click();
             ICollection<IWebElement> buttonsList = driver.FindElements(By.XPath("//button[@name='remove_cart_item']"));
-            Thread.Sleep(1000);
+            IWebElement orderTable = driver.FindElement(By.XPath("//table[contains(@class,'dataTable')]"));
+            //Для chrome sleep
+            Thread.Sleep(1000); 
+            
             for (int i = buttonsList.Count; i > 0; i--)
             {
                 IWebElement removeButton = buttonsList.First();       
                 removeButton.Click();
-                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(removeButton));
+                //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(removeButton));
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(orderTable));
                 //Удалена последняя строка
                 if (i == 1)
                 {
@@ -145,8 +149,9 @@ namespace litecart_tests
                 //Проверка иконок, если товаров больше 2
                 if (i > 2) Assert.AreEqual(i - 1, driver.FindElements(By.XPath("//ul[contains(@class,'shortcuts')]/li")).Count, "Shortcuts is not deleted");
                 //Проверка таблицы с товарами
-                buttonsList = driver.FindElements(By.XPath("//button[@name='remove_cart_item']"));            
-                Assert.AreEqual(i - 1, driver.FindElements(By.XPath("//table[contains(@class,'dataTable')]//td[contains(@class,'item')]")).Count, "Row is not deleted");
+                buttonsList = driver.FindElements(By.XPath("//button[@name='remove_cart_item']"));
+                orderTable = driver.FindElement(By.XPath("//table[contains(@class,'dataTable')]"));
+                Assert.AreEqual(i - 1, orderTable.FindElements(By.XPath(".//td[contains(@class,'item')]")).Count, "Order row is not deleted");
             }
         }
     }
