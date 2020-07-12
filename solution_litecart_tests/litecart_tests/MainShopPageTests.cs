@@ -100,6 +100,7 @@ namespace litecart_tests
             wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.XPath("//input[@name='email']"))).SendKeys(email);
             driver.FindElement(By.XPath("//input[@name='password']")).SendKeys(password);
             driver.FindElement(By.XPath("//button[@name='login']")).Click();
+            wait.Until(d => IsLoggedInMainPage());
             Assert.IsTrue(IsElementPresent(By.XPath("//div[@id='notices']//div[contains(text()," + 
                 String.Format("'You are now logged in as {0} {1}'", firstname, lastname) + ")]"), out IWebElement element), 
                 "You are not logged in as {0} {1}", firstname, lastname);
@@ -115,11 +116,16 @@ namespace litecart_tests
             for (int i = 0; i < 3; i++)
             {
                 productsList = driver.FindElements(By.XPath("//ul[contains(@class, 'products')]/li"));               
-                productsList.First().Click();               
-                if (IsElementPresent(By.XPath("//select[@name='options[Size]']"), out IWebElement element)) SelectRandomValue(element);
+                productsList.First().Click();
+                //Если у товара есть выпадающие списки, то заполним их
+                ICollection<IWebElement> selectList = driver.FindElements(By.XPath("//td[contains(@class, 'options')]//select"));
+                foreach(IWebElement select in selectList)
+                {
+                    SelectRandomValue(select);
+                }
                 IWebElement cartQuantity = driver.FindElement(By.XPath("//div[@id='cart']//span[contains(@class, 'quantity')]"));
                 TryClick(By.XPath("//button[@name='add_cart_product']"));
-                
+                //Сравним количество товара
                 string quantity = driver.FindElement(By.XPath("//input[@name='quantity']")).GetAttribute("value");
                 string newQuantity = (int.Parse(cartQuantity.Text) + int.Parse(quantity)).ToString();
                 wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.TextToBePresentInElement(cartQuantity, newQuantity));
@@ -136,9 +142,7 @@ namespace litecart_tests
             
             for (int i = buttonsList.Count; i > 0; i--)
             {
-                IWebElement removeButton = buttonsList.First();       
-                removeButton.Click();
-                //wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(removeButton));
+                buttonsList.First().Click(); 
                 wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.StalenessOf(orderTable));
                 //Удалена последняя строка
                 if (i == 1)
@@ -147,10 +151,10 @@ namespace litecart_tests
                     break;
                 }
                 //Проверка иконок, если товаров больше 2
-                if (i > 2) Assert.AreEqual(i - 1, driver.FindElements(By.XPath("//ul[contains(@class,'shortcuts')]/li")).Count, "Shortcuts is not deleted");
-                //Проверка таблицы с товарами
+                if (i > 2) Assert.AreEqual(i - 1, driver.FindElements(By.XPath("//ul[contains(@class,'shortcuts')]/li")).Count, "Shortcuts is not deleted");                
                 buttonsList = driver.FindElements(By.XPath("//button[@name='remove_cart_item']"));
                 orderTable = driver.FindElement(By.XPath("//table[contains(@class,'dataTable')]"));
+                //Проверка таблицы с товарами
                 Assert.AreEqual(i - 1, orderTable.FindElements(By.XPath(".//td[contains(@class,'item')]")).Count, "Order row is not deleted");
             }
         }

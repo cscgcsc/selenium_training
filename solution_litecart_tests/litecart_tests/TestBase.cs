@@ -186,12 +186,13 @@ namespace litecart_tests
 
         protected bool IsElementPresent(By by, out IWebElement element)
         {
-            try
+            ICollection<IWebElement> elements = driver.FindElements(by);
+            if(elements.Count > 0)
             {
-                element = driver.FindElement(by);
+                element = elements.First();
                 return true;
             }
-            catch (NoSuchElementException)
+            else
             {
                 element = null;
                 return false;
@@ -200,15 +201,7 @@ namespace litecart_tests
 
         protected bool IsElementPresentContext(By by, IWebElement context)
         {
-            try
-            {
-                context.FindElement(by);
-                return true;
-            }
-            catch (NoSuchElementException)
-            {
-                return false;
-            }
+            return context.FindElements(by).Count > 0;
         }
 
         protected bool IsLoggedInAdminPage()
@@ -236,9 +229,6 @@ namespace litecart_tests
                 Thread.Sleep(100);
             }
         }
-
-        //driver.ExecuteJavaScript("arguments[0].classList.remove('items');", driver.FindElement(By.XPath("//ul[contains(@class,'items')]")));
-        //wait.Until(d=>{ return driver.ExecuteJavaScript<String>("return document.readyState;").Equals("complete");});    
 
         [SetUp]
         protected void SetupTest()

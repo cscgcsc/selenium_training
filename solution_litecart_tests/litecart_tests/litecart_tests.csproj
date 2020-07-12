@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="AdminPageTests.cs" />
     <Compile Include="ApplicationManager.cs" />
+    <Compile Include="CustomEventFiringWebDriver.cs" />
     <Compile Include="MainTestBase.cs" />
     <Compile Include="MainAuthorizationTestBase.cs" />
     <Compile Include="AdminAuthorizationTestBase.cs" />

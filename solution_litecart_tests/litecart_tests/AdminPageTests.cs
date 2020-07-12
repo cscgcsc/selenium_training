@@ -65,7 +65,7 @@ namespace litecart_tests
             Assert.AreEqual(countriesList, sortedCountriesList, "List of countries is not sorted");
         }
 
-        [Test]
+        //[Test]
         public void GeozonesOrderingFromCountryPageTest()
         {
             driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//span[text()='Countries']/parent::a")).Click();
@@ -231,6 +231,19 @@ namespace litecart_tests
                 driver.SwitchTo().Window(currentWindow);
                 links = driver.FindElements(By.XPath("//td[@id='content']//form//a[@target='_blank']")).ToList();
             }         
+        }
+
+        [Test]
+        public void VerificationLogsTest()
+        {
+            driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//a[contains(@href, 'doc=catalog')]")).Click();
+
+            ICollection<IWebElement> products = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]"));
+            foreach (IWebElement product in products)
+            {
+                
+            }
+
         }
     }
 }
