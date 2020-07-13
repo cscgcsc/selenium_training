@@ -234,16 +234,26 @@ namespace litecart_tests
         }
 
         [Test]
-        public void VerificationLogsTest()
+        public void VerificationBrowserLogsTest()
         {
             driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//a[contains(@href, 'doc=catalog')]")).Click();
+            driver.FindElement(By.XPath("//table[contains(@class, 'dataTable')]//a[contains(@href, 'doc=catalog&category_id=1')]")).Click();
 
-            ICollection<IWebElement> products = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]"));
-            foreach (IWebElement product in products)
+            List<IWebElement> rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]")).ToList();
+            for (int i = 0; i < rows.Count(); i++)
             {
-                
-            }
+                ICollection<IWebElement> links = rows[i].FindElements(By.XPath(".//a[contains(@href, 'doc=edit_product')]"));
+                if (links.Count == 0) continue;
+                links.First().Click();
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.TitleContains("Edit Product:"));
+                driver.Navigate().Back();
+                rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]")).ToList();
 
+                //foreach (LogEntry entry in driver.Manage().Logs.GetLog("browser"))
+                //{
+                //    Console.WriteLine(entry.Message);
+                //}
+            }
         }
     }
 }

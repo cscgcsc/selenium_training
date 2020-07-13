@@ -20,8 +20,8 @@ namespace litecart_tests
         private ApplicationManager()
         {           
             baseURL = "http://localhost";
-            Driver = new CustomEventFiringWebDriver(new ChromeDriver(GetChromeOptions()));
-            //Driver = new ChromeDriver(GetChromeOptions());
+            //Driver = new CustomEventFiringWebDriver(new ChromeDriver(GetChromeOptions()));
+            Driver = new ChromeDriver(GetChromeOptions());
             //Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
             Wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));          
         }
@@ -56,6 +56,14 @@ namespace litecart_tests
         {
             ChromeOptions options = new ChromeOptions();
             options.AddArgument("start-maximized");
+            
+            //options.SetLoggingPreference(LogType.Browser, LogLevel.Severe);
+            //options.AddArgument("--enable-logging");
+            //options.AddArgument(@"--log-net-log=D:\qq\3.json");
+
+            //options.AddArgument(@"user-data-dir=D:\q\");
+            //options.AddArgument(@"download.default_directory=D:\q\");
+
             //options.AddArgument("--window-size=500,500");
             //options.PageLoadStrategy = PageLoadStrategy.Normal;
             //options.BinaryLocation = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
@@ -67,9 +75,8 @@ namespace litecart_tests
         {
             FirefoxOptions options = new FirefoxOptions();
             //options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
-            //options.LogLevel = FirefoxDriverLogLevel.Trace;
-            //options.BrowserExecutableLocation = @"C:\Program Files\Firefox Nightly\firefox.exe";       
-            //options.BrowserExecutableLocation = @"C:\Program Files (x86)\Mozilla Firefox\firefox.exe";
+            //options.BrowserExecutableLocation = @"C:\Program Files\Firefox Nightly\firefox.exe";
+            //options.LogLevel = FirefoxDriverLogLevel.Trace;  
             //options.UseLegacyImplementation = true;
 
             return options;
@@ -77,12 +84,17 @@ namespace litecart_tests
 
         private InternetExplorerOptions GetIEOptions()
         {
-            InternetExplorerOptions options = new InternetExplorerOptions();
-            //InternetExplorerDriverService IEDriverService = InternetExplorerDriverService.CreateDefaultService();
-            //IEDriverService.LoggingLevel = InternetExplorerDriverLogLevel.Trace;
-            //IEDriverService.LogFile = @"D:\q\1.log"; 
-
+            InternetExplorerOptions options = new InternetExplorerOptions();           
             return options;
+        }
+
+        private InternetExplorerDriverService GetIEDriverService()
+        {
+            InternetExplorerDriverService IEDriverService = InternetExplorerDriverService.CreateDefaultService();
+            IEDriverService.LoggingLevel = InternetExplorerDriverLogLevel.Trace;
+            IEDriverService.LogFile = @"D:\q\111.log";
+
+            return IEDriverService;
         }
 
         private void StartRemoteBrowser(DriverOptions options)
