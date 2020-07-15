@@ -2,12 +2,9 @@
 using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
 using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.Safari;
-using OpenQA.Selenium.Support.Events;
 using OpenQA.Selenium.Support.UI;
 
 namespace litecart_tests
@@ -20,9 +17,14 @@ namespace litecart_tests
         private ApplicationManager()
         {           
             baseURL = "http://localhost";
-            //Driver = new CustomEventFiringWebDriver(new ChromeDriver(GetChromeOptions()));
-            Driver = new ChromeDriver(GetChromeOptions());
-            //Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+
+            Proxy proxy = new Proxy();
+            proxy.Kind = ProxyKind.Manual;
+            proxy.HttpProxy = "localhost:8866";
+            DriverOptions options = GetFirefoxOptions();
+            options.Proxy = proxy;
+
+            Driver = new FirefoxDriver((FirefoxOptions)options);          
             Wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));          
         }
 
@@ -74,6 +76,10 @@ namespace litecart_tests
         private FirefoxOptions GetFirefoxOptions()
         {
             FirefoxOptions options = new FirefoxOptions();
+            FirefoxProfile profile = new FirefoxProfile();
+            profile.SetPreference("network.proxy.allow_hijacking_localhost", true);
+            options.Profile = profile;
+           
             //options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
             //options.BrowserExecutableLocation = @"C:\Program Files\Firefox Nightly\firefox.exe";
             //options.LogLevel = FirefoxDriverLogLevel.Trace;  

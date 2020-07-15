@@ -50,7 +50,6 @@ namespace litecart_tests
         public void CountriesOrderingTest()
         {         
             driver.FindElement(By.XPath("//ul[@id='box-apps-menu']//span[text()='Countries']//parent::a")).Click();
-
             List<string> countriesList = new List<string>();
 
             ICollection<IWebElement> rows = driver.FindElements(By.XPath("//table[contains(@class, 'dataTable')]//tr[contains(@class, 'row')]"));
