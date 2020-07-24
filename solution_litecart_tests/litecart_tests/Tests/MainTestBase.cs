@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using OpenQA.Selenium;
 
 namespace litecart_tests
 {
@@ -8,7 +7,7 @@ namespace litecart_tests
         [SetUp]
         protected void SetupAuthorizationTest()
         {
-            driver.Url = applicationManager.baseURL + "/litecart/";
+            app.NavigationHelper.GoToMainPage();
         }
     }
 }

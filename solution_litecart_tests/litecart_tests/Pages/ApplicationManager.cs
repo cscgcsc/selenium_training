@@ -12,20 +12,34 @@ namespace litecart_tests
     public class ApplicationManager
     {
         public string baseURL;
+        public string language;
         private static ThreadLocal<ApplicationManager> instance = new ThreadLocal<ApplicationManager>();
-      
+        public CountryHelper CountryHelper { get; set; }
+        public MenuHelper MenuHelper { get; set; }
+        public LoginHelper LoginHelper { get; set; }
+        public ZoneHelper ZoneHelper { get; set; }
+        public GeozoneHelper GeozoneHelper { get; set; }
+        public NavigationHelper NavigationHelper { get; set; }
+        public AdminProductHelper AdminProductHelper { get; set; }
+        public ProductHelper ProductHelper { get; set; }
+        public CustomerHelper CustomerHelper { get; set; }
+
         private ApplicationManager()
         {           
             baseURL = "http://localhost";
+            language = "en";
+            Driver = Chrome();
+            Wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));
 
-            Proxy proxy = new Proxy();
-            proxy.Kind = ProxyKind.Manual;
-            proxy.HttpProxy = "localhost:8866";
-            DriverOptions options = GetFirefoxOptions();
-            options.Proxy = proxy;
-
-            Driver = new FirefoxDriver((FirefoxOptions)options);          
-            Wait = new WebDriverWait(Driver, TimeSpan.FromSeconds(10));          
+            CountryHelper = new CountryHelper(this);
+            MenuHelper = new MenuHelper(this);
+            LoginHelper = new LoginHelper(this);
+            ZoneHelper = new ZoneHelper(this);
+            GeozoneHelper = new GeozoneHelper(this);
+            NavigationHelper = new NavigationHelper(this);
+            AdminProductHelper = new AdminProductHelper(this);
+            ProductHelper = new ProductHelper(this);
+            CustomerHelper = new CustomerHelper(this);
         }
 
         public static ApplicationManager GetInstance()
@@ -54,11 +68,11 @@ namespace litecart_tests
        
         public WebDriverWait Wait { get; set; }
 
-        private ChromeOptions GetChromeOptions()
+        private ChromeDriver Chrome()
         {
             ChromeOptions options = new ChromeOptions();
             options.AddArgument("start-maximized");
-            
+
             //options.SetLoggingPreference(LogType.Browser, LogLevel.Severe);
             //options.AddArgument("--enable-logging");
             //options.AddArgument(@"--log-net-log=D:\qq\3.json");
@@ -69,43 +83,48 @@ namespace litecart_tests
             //options.AddArgument("--window-size=500,500");
             //options.PageLoadStrategy = PageLoadStrategy.Normal;
             //options.BinaryLocation = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
+            //options.Proxy = GetProxy();
 
-            return options;
+            return new ChromeDriver(options);
         }
 
-        private FirefoxOptions GetFirefoxOptions()
+        private FirefoxDriver Firefox()
         {
             FirefoxOptions options = new FirefoxOptions();
+            //options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
+            options.BrowserExecutableLocation = @"C:\Program Files\Firefox Nightly\firefox.exe";
+            //options.LogLevel = FirefoxDriverLogLevel.Trace;  
+
             FirefoxProfile profile = new FirefoxProfile();
             profile.SetPreference("network.proxy.allow_hijacking_localhost", true);
             options.Profile = profile;
-           
-            //options.BrowserExecutableLocation = @"C:\Program Files\Mozilla Firefox\firefox.exe";
-            //options.BrowserExecutableLocation = @"C:\Program Files\Firefox Nightly\firefox.exe";
-            //options.LogLevel = FirefoxDriverLogLevel.Trace;  
-            //options.UseLegacyImplementation = true;
-
-            return options;
+                     
+            return new FirefoxDriver(options);
         }
 
-        private InternetExplorerOptions GetIEOptions()
+        private InternetExplorerDriver InternetExplorer()
         {
-            InternetExplorerOptions options = new InternetExplorerOptions();           
-            return options;
+            InternetExplorerOptions options = new InternetExplorerOptions();
+            //InternetExplorerDriverService IEDriverService = InternetExplorerDriverService.CreateDefaultService();
+            //IEDriverService.LoggingLevel = InternetExplorerDriverLogLevel.Trace;
+            //IEDriverService.LogFile = @"D:\q\111.log";
+
+            return new InternetExplorerDriver(options);
         }
 
-        private InternetExplorerDriverService GetIEDriverService()
+        private Proxy GetProxy()
         {
-            InternetExplorerDriverService IEDriverService = InternetExplorerDriverService.CreateDefaultService();
-            IEDriverService.LoggingLevel = InternetExplorerDriverLogLevel.Trace;
-            IEDriverService.LogFile = @"D:\q\111.log";
+            Proxy proxy = new Proxy();
+            proxy.Kind = ProxyKind.Manual;
+            proxy.HttpProxy = "localhost:8866";
 
-            return IEDriverService;
+            return proxy;
         }
 
-        private void StartRemoteBrowser(DriverOptions options)
+        private void StartRemoteBrowser()
         {
             string seleniumHubURL = "http://10.22.9.86:4444/wd/hub";
+            ChromeOptions options = new ChromeOptions();
             Driver = new RemoteWebDriver(new Uri(seleniumHubURL), options);
             //java -jar D:\Programs\allure-2.13.0\bin\selenium-server-standalone-3.141.59.jar -role node -hub "http://10.22.9.86:4444/grid/register" -capabilities browserName=firefox,maxInstances=1 -capabilities browserName=chrome,maxInstances=1 -capabilities browserName=iexplorer,maxInstances=1
         }

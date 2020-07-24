@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="litecart_tests.HelperBase" Collapsed="true">
+    <Position X="12.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CQAkgAyACAEABIAAAAAIABCAAAAAAAAEQSAAQAAIAAA=</HashCode>
+      <FileName>Pages\HelperBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.CountryHelper" Collapsed="true">
+    <Position X="9" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAAAgQAAAAAAAAAAAAAAyAAAAAAARA=</HashCode>
+      <FileName>Pages\AdminPanel\CountryHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.GeozoneHelper" Collapsed="true">
+    <Position X="9" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAACAA=</HashCode>
+      <FileName>Pages\AdminPanel\GeozoneHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.LoginHelper" Collapsed="true">
+    <Position X="9" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAACAAQAIAIAAAAAAAAAIAEAAEAAAAAAAA=</HashCode>
+      <FileName>Pages\AdminPanel\LoginHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.MenuHelper" Collapsed="true">
+    <Position X="9" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAEIAAAAAABgABAAABAAAAAAABAAAQAAAAAIAAQAA=</HashCode>
+      <FileName>Pages\AdminPanel\MenuHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.NavigationHelper" Collapsed="true">
+    <Position X="9" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAEAAAEAAIAAA=</HashCode>
+      <FileName>Pages\AdminPanel\NavigationHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.ProductHelper" Collapsed="true">
+    <Position X="9" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AUsgAAAIAAAAAgAAEgAAhICAAAAAQJAQCgIAEEQEAAA=</HashCode>
+      <FileName>Pages\ClientPanel\ProductHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.ZoneHelper" Collapsed="true">
+    <Position X="9" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAACAAAAAAAAAAAAAAAAACAAAAAAAAgAAAAAAAAA=</HashCode>
+      <FileName>Pages\AdminPanel\ZoneHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.TestBase" Collapsed="true">
+    <Position X="3.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAIgAAAAAAAAAAABQEABEAABCAACAAAAAAAAA=</HashCode>
+      <FileName>Tests\TestBase.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="app" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="litecart_tests.ApplicationManager">
+    <Position X="6" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAgIAAAAAAAoIBAAAAAAEBCRAgAAAACIACAgAACA=</HashCode>
+      <FileName>Pages\ApplicationManager.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="CountryHelper" />
+      <Property Name="MenuHelper" />
+      <Property Name="LoginHelper" />
+      <Property Name="ZoneHelper" />
+      <Property Name="GeozoneHelper" />
+      <Property Name="NavigationHelper" />
+      <Property Name="ProductHelper" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="litecart_tests.MainShopPageTests" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAAAAAAAAAAAAAAAAAAAAAgAAAQAAAEAAAAAA=</HashCode>
+      <FileName>Tests\ClientPanelTests\MainShopPageTests.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.AdminPageTests" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAACAAAAAACAAABAMAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Tests\AdminPanelTests\AdminPageTests.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.AdminAuthorizationTestBase" Collapsed="true">
+    <Position X="2.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tests\AdminAuthorizationTestBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.AdminAuthorizationTests" Collapsed="true">
+    <Position X="0.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tests\AdminPanelTests\AdminAuthorizationTests.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.MainTestBase" Collapsed="true">
+    <Position X="2.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tests\MainTestBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.MainAuthorizationTestBase" Collapsed="true">
+    <Position X="2.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tests\MainAuthorizationTestBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.AdminTestBase" Collapsed="true">
+    <Position X="2.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tests\AdminTestBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="litecart_tests.CustomerHelper" Collapsed="true">
+    <Position X="9" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAAAAAEAAEAAAgAAAAAAAQA=</HashCode>
+      <FileName>Pages\ClientPanel\CustomerHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
